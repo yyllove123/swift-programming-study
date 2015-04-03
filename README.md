@@ -334,24 +334,233 @@ Functions are actually a special case of closures: blocks of code that can be ca
 	​triangle​.​perimeter​ = ​9.9
 	​triangle​.​sideLength
 
+在 *perimeter* 的set方法中，新的值用 *newValue* 来表示，你也可以提供一个set参数来代表。
+
+*EquilateralTriangle* 类的初始化器有3个不同的步骤：
+
+1. 设置了父类的一个参数。
+2. 调用了父类的初始化器。
+3. 改变父类的属性值。
+
+如果你不想计算，但是需要在运行前或者运行后设置一些新值，可以使用 *willSet* 和 *didSet* 。例如下面的类，确保了三角形的边长始终等于正方形的边长。
+
+	class​ ​TriangleAndSquare​ {
+	​    ​var​ ​triangle​: ​EquilateralTriangle​ {
+	​        ​willSet​ {
+	​            ​square​.​sideLength​ = ​newValue​.​sideLength
+	​        }
+	​    }
+	​    ​var​ ​square​: ​Square​ {
+	​        ​willSet​ {
+	​            ​triangle​.​sideLength​ = ​newValue​.​sideLength
+	​        }
+	​    }
+	​    ​init​(​size​: ​Double​, ​name​: ​String​) {
+	​        ​square​ = ​Square​(​sideLength​: ​size​, ​name​: ​name​)
+	​        ​triangle​ = ​EquilateralTriangle​(​sideLength​: ​size​, ​name​: ​name​)
+	​    }
+	​}
+	​var​ ​triangleAndSquare​ = ​TriangleAndSquare​(​size​: ​10​, ​name​: ​"another test shape"​)
+	​triangleAndSquare​.​square​.​sideLength
+	​triangleAndSquare​.​triangle​.​sideLength
+	​triangleAndSquare​.​square​ = ​Square​(​sideLength​: ​50​, ​name​: ​"larger square"​)
+	​triangleAndSquare​.​triangle​.​sideLength
+
+可以给参数设置一个名字：
+
+	class​ ​Counter​ {
+	​    ​var​ ​count​: ​Int​ = ​0
+	​    ​func​ ​incrementBy​(​amount​: ​Int​, ​numberOfTimes​ ​times​: ​Int​) {
+	​        ​count​ += ​amount​ * ​times
+	​    }
+	​}
+	​var​ ​counter​ = ​Counter​()
+	​counter​.​incrementBy​(​2​, ​numberOfTimes​: ​7​)
+
+当接收一个可选值时，你可以使用问号（？）在方法属性前，如果返回的值是 nil, 则所有的这个值存在的地方将会被忽略。
+
+	let​ ​optionalSquare​: ​Square​? = ​Square​(​sideLength​: ​2.5​, ​name​: ​"optional square"​)
+	​let​ ​sideLength​ = ​optionalSquare​?.​sideLength
+
+###枚举和结构体
+
+使用 *enum* 来创建一个枚举。像类和其他名字类型一样，枚举可以拥有方法
+
+	enum​ ​Rank​: ​Int​ {
+	​    ​case​ ​Ace​ = ​1
+	​    ​case​ ​Two​, ​Three​, ​Four​, ​Five​, ​Six​, ​Seven​, ​Eight​, ​Nine​, ​Ten
+	​    ​case​ ​Jack​, ​Queen​, ​King
+	​    ​func​ ​simpleDescription​() -> ​String​ {
+	​        ​switch​ ​self​ {
+	​        ​case​ .​Ace​:
+	​            ​return​ ​"ace"
+	​        ​case​ .​Jack​:
+	​            ​return​ ​"jack"
+	​        ​case​ .​Queen​:
+	​            ​return​ ​"queen"
+	​        ​case​ .​King​:
+	​            ​return​ ​"king"
+	​        ​default​:
+	​            ​return​ ​String​(​self​.​rawValue​)
+	​        }
+	​    }
+	​}
+	​let​ ​ace​ = ​Rank​.​Ace
+	​let​ ​aceRawValue​ = ​ace​.​rawValue
+
+上面的例子它的枚举值是 Int 类型，所以你只需要具体说明第一个值就可以了，它的值按顺序自动设置。如果你用一个字符串或者浮点型的类型，使用 *rawValue* 属性来指定枚举成员的值。
+
+使用 *init?（rawValue:）* 初始化器来创建一个枚举值。
+
+	if​ ​let​ ​convertedRank​ = ​Rank​(​rawValue​: ​3​) {
+	​    ​let​ ​threeDescription​ = ​convertedRank​.​simpleDescription​()
+	​}
+
+声明枚举的时候，可以不指定类型。
+
+	enum​ ​Suit​ {
+	​    ​case​ ​Spades​, ​Hearts​, ​Diamonds​, ​Clubs
+	​    ​func​ ​simpleDescription​() -> ​String​ {
+	​        ​switch​ ​self​ {
+	​        ​case​ .​Spades​:
+	​            ​return​ ​"spades"
+	​        ​case​ .​Hearts​:
+	​            ​return​ ​"hearts"
+	​        ​case​ .​Diamonds​:
+	​            ​return​ ​"diamonds"
+	​        ​case​ .​Clubs​:
+	​            ​return​ ​"clubs"
+	​        }
+	​    }
+	​}
+	​let​ ​hearts​ = ​Suit​.​Hearts
+	​let​ ​heartsDescription​ = ​hearts​.​simpleDescription​()
 
 
+使用 *struct* 创建一个结构体，它支持类的行为，可以包括方法的初始化器。它和类的区别在于，它在作为参数时总是被复制的，类只是传递引用。
 
+	struct​ ​Card​ {
+	​    ​var​ ​rank​: ​Rank
+	​    ​var​ ​suit​: ​Suit
+	​    ​func​ ​simpleDescription​() -> ​String​ {
+	​        ​return​ ​"The ​\(​rank​.​simpleDescription​())​ of ​\(​suit​.​simpleDescription​())​"
+	​    }
+	​}
+	​let​ ​threeOfSpades​ = ​Card​(​rank​: .​Three​, ​suit​: .​Spades​)
+	​let​ ​threeOfSpadesDescription​ = ​threeOfSpades​.​simpleDescription​()
 
+一个实例的枚举成员能关联这个实例。各个实例中的相同枚举成员能有不同的值。你能提供一个相关值在创建实例的时候。相关值和原始值是不一样的：原始值在所有的实例中是一样的，你提供这个原始值在定义枚举的时候。
+*(An instance of an enumeration member can have values associated with the instance. Instances of the same enumeration member can have different values associated with them. You provide the associated values when you create the instance. Associated values and raw values are different: The raw value of an enumeration member is the same for all of its instances, and you provide the raw value when you define the enumeration.)*
 
+例如：从服务器请求日出日落时间。服务器将会返回正确的信息或者错误的信息。
 
+	enum​ ​ServerResponse​ {
+	​    ​case​ ​Result​(​String​, ​String​)
+	​    ​case​ ​Error​(​String​)
+	​}
+	​ 
+	​let​ ​success​ = ​ServerResponse​.​Result​(​"6:00 am"​, ​"8:09 pm"​)
+	​let​ ​failure​ = ​ServerResponse​.​Error​(​"Out of cheese."​)
+	​ 
+	​switch​ ​success​ {
+	​case​ ​let​ .​Result​(​sunrise​, ​sunset​):
+	​    ​let​ ​serverResponse​ = ​"Sunrise is at ​\(​sunrise​)​ and sunset is at ​\(​sunset​)​."
+	​case​ ​let​ .​Error​(​error​):
+	​    ​let​ ​serverResponse​ = ​"Failure...  ​\(​error​)​"
+	​}
 
+Notice how the sunrise and sunset times are extracted from the ServerResponse value as part of matching the value against the switch cases.
 
+###协议和扩展
 
+用 *protocol* 定义一个协议
 
+	protocol​ ​ExampleProtocol​ {
+	​    ​var​ ​simpleDescription​: ​String​ { ​get​ }
+	​    ​mutating​ ​func​ ​adjust​()
+	​}
 
+类、枚举、结构体 均可使用协议。
 
+	class​ ​SimpleClass​: ​ExampleProtocol​ {
+	​    ​var​ ​simpleDescription​: ​String​ = ​"A very simple class."
+	​    ​var​ ​anotherProperty​: ​Int​ = ​69105
+	​    ​func​ ​adjust​() {
+	​        ​simpleDescription​ += ​"  Now 100% adjusted."
+	​    }
+	​}
+	​var​ ​a​ = ​SimpleClass​()
+	​a​.​adjust​()
+	​let​ ​aDescription​ = ​a​.​simpleDescription
+	​ 
+	​struct​ ​SimpleStructure​: ​ExampleProtocol​ {
+	​    ​var​ ​simpleDescription​: ​String​ = ​"A simple structure"
+	​    ​mutating​ ​func​ ​adjust​() {
+	​        ​simpleDescription​ += ​" (adjusted)"
+	​    }
+	​}
+	​var​ ​b​ = ​SimpleStructure​()
+	​b​.​adjust​()
+	​let​ ​bDescription​ = ​b​.​simpleDescription
 
+*mutating*关键字，表示会改变当前的结构体. 类不用，因为类方法总是可以改变类。
 
+使用 *extension* 给一个存在的类型添加功能。比如一个新的方法和属性。你可以用扩展给一个自定义类型或系统类型添加一个协议方法。
 
+	extension​ ​Int​: ​ExampleProtocol​ {
+	​    ​var​ ​simpleDescription​: ​String​ {
+	​        ​return​ ​"The number ​\(​self​)​"
+	​    }
+	​    ​mutating​ ​func​ ​adjust​() {
+	​        ​self​ += ​42
+	​    }
+	​}
+	​7​.​simpleDescription
 
+你可以像其他类型名一样使用协议名，比如，创建 实现了一个协议的不同类型对象的集合，当你的一个值类型是一个协议类型，协议外的其他方法是不可用的。
 
+	let​ ​protocolValue​: ​ExampleProtocol​ = ​a
+	​protocolValue​.​simpleDescription
+	​// protocolValue.anotherProperty  // Uncomment to see the error
 
+###泛型
+
+用一个尖括号包括名字创建一个泛型的方法或类型
+
+	func​ ​repeat​<​Item​>(​item​: ​Item​, ​times​: ​Int​) -> [​Item​] {
+	​    ​var​ ​result​ = [​Item​]()
+	​    ​for​ ​i​ ​in​ ​0​..<​times​ {
+	​        ​result​.​append​(​item​)
+	​    }
+	​    ​return​ ​result
+	​}
+	​repeat​(​"knock"​, ​4​)
+
+你能创建泛型表单在方法和函数中，也可以在类，枚举，结构体中。
+
+	// Reimplement the Swift standard library's optional type
+	​enum​ ​OptionalValue​<​T​> {
+	​    ​case​ ​None
+	​    ​case​ ​Some​(​T​)
+	​}
+	​var​ ​possibleInteger​: ​OptionalValue​<​Int​> = .​None
+	​possibleInteger​ = .​Some​(​100​)
+
+在类型名后面用 *where* 来具体说明要求的列表-- 例如，要求这个类型实现一个协议，要求两个类型一样，要求一个类必须有一个指定的父类。
+
+	func​ ​anyCommonElements​ <​T​, ​U​ ​where​ ​T​: ​SequenceType​, ​U​: ​SequenceType​, ​T​.​Generator​.​Element​: ​Equatable​, ​T​.​Generator​.​Element​ == ​U​.​Generator​.​Element​> (​lhs​: ​T​, ​rhs​: ​U​) -> ​Bool​ {
+	​    ​for​ ​lhsItem​ ​in​ ​lhs​ {
+	​        ​for​ ​rhsItem​ ​in​ ​rhs​ {
+	​            ​if​ ​lhsItem​ == ​rhsItem​ {
+	​                ​return​ ​true
+	​            }
+	​        }
+	​    }
+	​    ​return​ ​false
+	​}
+	​anyCommonElements​([​1​, ​2​, ​3​], [​3​])
+
+在一些简单的例子中，你可以删除 *where* 并且提供一个协议或类名在冒号后面。*<T: Equatable>* 和 *<T where T: Equatable>* 是一样的
 
 
 
