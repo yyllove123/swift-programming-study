@@ -111,3 +111,37 @@ swift会推断出你使用的运算符方法
 	​// its value is ["OneSix", "FiveEight", "FiveOneZero"]
 	
 ## 捕获值
+
+closure能捕获上下文的变量和常量，
+
+	func​ ​makeIncrementor​(​forIncrement​ ​amount​: ​Int​) -> () -> ​Int​ {
+	​    ​var​ ​runningTotal​ = ​0
+	​    ​func​ ​incrementor​() -> ​Int​ {
+	​        ​runningTotal​ += ​amount
+	​        ​return​ ​runningTotal
+	​    }
+	​    ​return​ ​incrementor
+	​}
+	
+这样调用
+
+	let​ ​incrementByTen​ = ​makeIncrementor​(​forIncrement​: ​10​)
+
+它的值是这样的
+
+	incrementByTen​()
+	​// returns a value of 10
+	​incrementByTen​()
+	​// returns a value of 20
+	​incrementByTen​()
+	​// returns a value of 30
+	
+##Closure是引用类型
+
+上面的方法虽然是常量定义的，但是他们可以改变参数 runningTotal的值，说明它是引用类型。
+
+如果你将一个closure赋给两个不同的常量，但它们还是占用的同一个closure
+
+	let​ ​alsoIncrementByTen​ = ​incrementByTen
+	​alsoIncrementByTen​()
+	​// returns a value of 50
